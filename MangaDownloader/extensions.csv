@@ -1,0 +1,2 @@
+count,website_name,website_link,method_name
+1,Coffee Manga,https://coffeemanga.com,coffee_manga_start()
