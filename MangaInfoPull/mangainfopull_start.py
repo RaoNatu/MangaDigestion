@@ -36,7 +36,7 @@ def start_mangainfopull():
             break
 
         elif choice == "1":
-            start_apilist()
+            start_anilist()
 
         elif choice == "2":
             start_myanimelist()

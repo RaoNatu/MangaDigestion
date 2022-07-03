@@ -1,9 +1,11 @@
 # This program is build to make it easier to Rename Manga Chapters and Conversion of its images files to PDF.
 # Before running the program make sure to Check the PATH, Logics and at where you want to save your PDFs Chapters.
+from cmath import e
 import os
 from MangaOperations.mangaoperations_start import mangaoperations_start, clear_screen
 from MangaInfoPull.mangainfopull_start import start_mangainfopull
 from MangaDownloader.mangadownloader_start import start_mangadownloader
+from MangaThumbnail.thumbnailapi import thumbnailapi as thumbapi
 
 is_on = True
 
@@ -24,6 +26,7 @@ while is_on:
     print("1. Manga Operations")
     print("2. Pull Manga Information")
     print("3. Download Mangas")
+    print("4. Get Manga Thumbnail")
     print("E. Exit")
     choice = str(input("Enter your choice: "))
 
@@ -35,3 +38,6 @@ while is_on:
         start_mangainfopull()
     elif choice == "3":
         start_mangadownloader()
+    elif choice == "4":
+        thumbapi_obj = thumbapi()
+        thumbapi_obj.get_thumbnail_info()

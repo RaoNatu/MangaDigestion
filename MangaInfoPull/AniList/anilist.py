@@ -9,7 +9,7 @@ def clear_screen():
     else:
         return "cls"
 
-def start_apilist():
+def start_anilist():
     ani_obj = ani()
     mangatitlelinks = []
     os.system(clear_screen())
