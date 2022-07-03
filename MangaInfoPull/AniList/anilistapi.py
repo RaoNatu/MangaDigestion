@@ -76,7 +76,7 @@ class anilistapi:
             score = score.split("%")
             score = int(score[0])/10
         except:
-            score = "N/A"
+            score = 0
         description = driver.find_element(By.XPATH, "//p[@class='description']").text
         imagelink = driver.find_element(By.XPATH, "//div[@class='cover-wrap-inner']/img[@class='cover']").get_attribute('src')
         try:
@@ -109,8 +109,8 @@ class anilistapi:
                 popularity = '{:,}'.format(int(j))
             
             elif i == "Mean Score":
-                if score == "N/A":
-                    score = score.split("%")
+                if score == 0:
+                    score =j.split("%")
                     score = int(score[0])/10
 
             elif i == "Start Date":
@@ -136,8 +136,6 @@ class anilistapi:
         if choice.lower() == 'y':
             self.get_image(infolist[0], infolist[2], infolist[6], infolist[9], infolist[10], infolist[11])
 
-        print(infolist[11])
-        print("Image Saved!")
         print(f"➤ **Title:** __{infolist[0]}__")
         print(f"➤ **Other Title:** __{infolist[1]}__")
         print(f"➤ **Type:** __{infolist[2]}__")
@@ -151,13 +149,24 @@ class anilistapi:
     def get_image(self, manganame, mangatype, score, imagelink, bannerimagelink, startyear):
         manganame = re.sub(r':', "_", manganame)
 
+        manganame_newline_ls = []
+
+        choice = str(input(f"Enter name that you want to display, (use \\n without space, default {manganame} [y]): "))
+        if choice != 'y':
+            manganame_newline = choice
+            manganame_newline_ls = manganame_newline.split('\\n')
+            manganame = " ".join(manganame_newline_ls)
+
+        else:
+            manganame_newline_ls.append(manganame)
+
         response = requests.get(imagelink)
         response1 = requests.get(bannerimagelink)
 
         if platform == "linux" or platform == "linux2":
-            folder_name = f"{os.getcwd()}/images/{manganame}/"
+            folder_name = f"{os.getcwd()}/thumbnail/{manganame}/"
         else:
-            folder_name = f"{os.getcwd()}\\images\\{manganame}\\"
+            folder_name = f"{os.getcwd()}\\thumbnail\\{manganame}\\"
 
         if not os.path.isdir(folder_name):
             os.makedirs(folder_name)
@@ -171,7 +180,7 @@ class anilistapi:
                 f.write(response1.content)
 
 
-        self.manipulate_img(folder_name, mangatype, manganame, startyear, score)
+        self.manipulate_img(folder_name, mangatype, startyear, score, manganame_newline_ls)
         
         # im = Image.open(image_in_folder).convert('RGB')
         # width, height = im.size
@@ -184,34 +193,35 @@ class anilistapi:
         # print(f"Images Saved! at: {folder_name}")
 
 
-    def manipulate_img(self, folder_name, mangatype, manganame, startyear, score):
+    def manipulate_img(self, folder_name, mangatype, startyear, score, manganame_newline_ls):
 
-        choice = str(input(f"Enter name that you want to display, (default {manganame} [y]): "))
-        if choice != 'y':
-            manganame = choice
+        # emptywidth = int((coverwidth * 16) / 6)
+        emptywidth = 1500
+        emptyheight = 720
+        emptyimg = Image.new('RGB', (emptywidth, emptyheight))
+
+        bannerimg = Image.open(f'{folder_name}banner.jpg').convert('RGBA')
+        bannerwidth, bannerheight = bannerimg.size
 
         coverimg = Image.open(f'{folder_name}cover.jpg').convert('RGBA')
         coverwidth, coverheight = coverimg.size
+        while coverheight < emptyheight:
+            coverwidth = int(coverwidth * 1.1)
+            coverheight = int(coverheight * 1.1)
+        coverimg = coverimg.resize((coverwidth, coverheight))
 
         mask = Image.new("L", (coverwidth, coverheight), 0)
         sar_ver = ((50, 0),(coverwidth, 0),(coverwidth, coverheight),(0, coverheight))
         ImageDraw.Draw(mask).polygon(sar_ver, fill=255)
 
-        bannerimg = Image.open(f'{folder_name}banner.jpg').convert('RGBA')
-        bannerwidth, bannerheight = bannerimg.size
-
-        emptywidth = int((coverwidth * 16) / 6)
-        emptyheight = 1080
-
-        starimg = Image.open(f'{os.getcwd()}/Assets/Image/star.png')
-        starfraction = 0.04
 
         bannerimg = bannerimg.crop((760, 0, bannerwidth, bannerheight))
-        bannerimg = bannerimg.resize((emptywidth + 400, coverheight))
+        bannerimg = bannerimg.resize((emptywidth + 400, emptyheight))
         bannerimg = bannerimg.filter(ImageFilter.GaussianBlur(16))
         bannerimg = ImageEnhance.Brightness(bannerimg).enhance(0.5)
 
-        emptyimg = Image.new('RGB', (emptywidth, coverheight))
+        starimg = Image.open(f'{os.getcwd()}/Assets/Image/star.png')
+        starfraction = 0.03
 
         starimg = starimg.resize((int(starfraction*emptyimg.size[0]), int(starfraction*emptyimg.size[0])))
         
@@ -229,26 +239,37 @@ class anilistapi:
             titlefontsize += 1
             title_font = ImageFont.truetype(font_path, titlefontsize)
 
-        try:
+        print(titlefontsize)
+        if titlefontsize > 25:
             yearfontsize = titlefontsize - 25
-        except:
-            try:
-                yearfontsize = titlefontsize - 15
-            except:
-                yearfontsize = titlefontsize - 10
+        
+        elif titlefontsize < 25 and titlefontsize > 15:
+            yearfontsize = titlefontsize -10
+
+        elif titlefontsize < 15 and titlefontsize > 5:
+            yearfontsize = titlefontsize -5
+
+        print(yearfontsize)
         year_font = ImageFont.truetype(font_path, yearfontsize)
 
-        ratingfontsize = 1
-        ratingfraction = 0.1
+        ratingfontsize = 35
+        # ratingfraction = 0.05
         rating_font = ImageFont.truetype(font_path, ratingfontsize)
-        while rating_font.getsize(f"{score}/10")[0] < ratingfraction*emptyimg.size[0]:
-        # iterate until the text size is just larger than the criteria
-            ratingfontsize += 1
-            rating_font = ImageFont.truetype(font_path, ratingfontsize)
+        # while rating_font.getsize(f"{score}/10")[0] < ratingfraction*emptyimg.size[0]:
+        # # iterate until the text size is just larger than the criteria
+        #     ratingfontsize += 1
+        #     rating_font = ImageFont.truetype(font_path, ratingfontsize)
 
         ImageDraw.Draw(bannerimg).text((emptyimg.size[0] * 0.06, emptyimg.size[1] * 0.13), text=f"{startyear} - {mangatype}", font=year_font)
-        ImageDraw.Draw(bannerimg).text((emptyimg.size[0] * 0.06, emptyimg.size[1] * 0.17), text=manganame, font=title_font)
-        ImageDraw.Draw(bannerimg).text((emptyimg.size[0] * 0.11, emptyimg.size[1] * 0.8), text=f"{score}/10", font=rating_font)
+        
+        height = 0.17
+        for line in manganame_newline_ls:
+            ImageDraw.Draw(bannerimg).text((emptyimg.size[0] * 0.06, emptyimg.size[1] * height), text=line, font=title_font)
+            height += 0.06
+            print(line)
+        
+        
+        ImageDraw.Draw(bannerimg).text((emptyimg.size[0] * 0.1, emptyimg.size[1] * 0.8), text=f"{score}/10", font=rating_font)
         ImageDraw.Draw(bannerimg).text((emptyimg.size[0] * 0.06, emptyimg.size[1] * 0.9), text="@MangaDigestion", font=year_font)
         
 
@@ -256,7 +277,7 @@ class anilistapi:
         emptyimg.paste(starimg, (int(emptyimg.size[0] * 0.06), int(emptyimg.size[1] * 0.79)), mask=starimg)
         emptyimg.paste(coverimg, (emptywidth - coverwidth, 0), mask=mask)
 
-        emptyimg.show()
+        # emptyimg.show()
         emptyimg.save(f"{folder_name}telecover.jpg")
         print("Image Saved!")
         
