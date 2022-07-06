@@ -7,6 +7,9 @@ from zipfile import ZipFile
 from sys import platform
 from PIL import Image
 from rename import Rename
+from fpdf import FPDF
+from io import BytesIO
+from pathlib import Path
 
 
 def complete():
@@ -70,6 +73,23 @@ class ImgToPdf:
         except:
             pass
         self.chapter_list = []
+
+    def pil_image(self, path: Path) -> BytesIO:
+        img = Image.open(path).convert('RGB')
+        try:
+            membuf = BytesIO()
+            suffix = path.split('.')[-1]
+            suffix = "." + suffix
+            if suffix == '.jpg' or suffix == '.png':
+                img.save(membuf, format='jpeg')
+            else:
+                img.save(membuf)
+        finally:
+            img.close()
+        del img
+        del suffix
+        gc.collect()
+        return membuf
 
     def create_pdf(self, rename_para=""):
         print()
@@ -137,44 +157,71 @@ class ImgToPdf:
                 list_pages.sort()
                 print(f"List Pages: {list_pages}")
 
+                # PDF Conversion using FPDF2 
+
+                pdf = FPDF('P', 'pt')
+                for image in list_pages:
+                    if platform == "linux" or platform == "linux2":
+                        img_path = f'{image_path}/{image}'
+                    else:
+                        img_path = f'{image_path}\\{image}'
+                    file = Image.open(img_path).convert('RGB')
+                    width, height = file.size
+                    pdf.add_page(format=(width, height))
+                    img_bytes = self.pil_image(img_path)
+                    pdf.image(img_bytes, 0, 0, width, height)
+                    img_bytes.close()
+
+                    del img_bytes
+                    del image
+                    gc.collect()
+
+                pdf.output(pdf_output_path_and_name, "F")
+                pdf.close()
+
+                
+                # PDF Conversion using PIL
+
                 # Opening Image class and making Image Objects and setting them in dictionary
-                if platform == "linux" or platform == "linux2":
-                    img_obj_dict = {page_name: Image.open(f"{image_path}/{page_name}") for page_name in list_pages}
-                else:
-                    img_obj_dict = {page_name: Image.open(f"{image_path}\\{page_name}") for page_name in list_pages}
+                # if platform == "linux" or platform == "linux2":
+                #     img_obj_dict = {page_name: Image.open(f"{image_path}/{page_name}") for page_name in list_pages}
+                # else:
+                #     img_obj_dict = {page_name: Image.open(f"{image_path}\\{page_name}") for page_name in list_pages}
 
-                # Getting all the Image Objects and setting them in list
-                img_obj_list = [objects for page_name, objects in img_obj_dict.items()]
-                intro_image_obj = Image.open(f"{os.getcwd()}/MangaOperations/intro_img/Intro.png")
-                img_obj_list.insert(0, intro_image_obj)
+                # # Getting all the Image Objects and setting them in list
+                # img_obj_list = [objects for page_name, objects in img_obj_dict.items()]
+                # intro_image_obj = Image.open(f"{os.getcwd()}/MangaOperations/intro_img/Intro.png")
+                # img_obj_list.insert(0, intro_image_obj)
 
-                img_obj_list_2 = []
+                # img_obj_list_2 = []
 
-                # Converting the pages to rgb to avoid errors
-                for x in img_obj_list:
-                    x1 = x.convert('RGB')
-                    img_obj_list_2.append(x1)
+                # # Converting the pages to rgb to avoid errors
+                # for x in img_obj_list:
+                #     x1 = x.convert('RGB')
+                #     img_obj_list_2.append(x1)
 
-                # Main Logic of converting images to pdfs
-                # first_key = list(Img_Obj_dict.values())[0]
-                first_key = img_obj_list_2[0]
-                print(f"Object: {first_key}")
-                first_key.save(pdf_output_path_and_name, "PDF", resolution=100.0, save_all=True,
-                               append_images=img_obj_list_2[1:])
+                # # Main Logic of converting images to pdfs
+                # # first_key = list(Img_Obj_dict.values())[0]
+                # first_key = img_obj_list_2[0]
+                # print(f"Object: {first_key}")
+                # first_key.save(pdf_output_path_and_name, "PDF", resolution=100.0, save_all=True,
+                #                append_images=img_obj_list_2[1:])
+
                 print(f"Conversion of {chapter_no} completed!")
                 print()
                 del image_path
                 del pdf_output_path_and_name
                 del list_pages
-                del img_obj_dict
-                del img_obj_list
-                del img_obj_list_2
-                del x
-                del x1
                 del chapter
-                del first_key
+                # del img_obj_dict
+                # del img_obj_list
+                # del img_obj_list_2
+                # del x
+                # del x1
+                # del first_key
                 gc.collect()
             except Exception as e:
+                print(e)
                 writing_exceptions(chapter_no, e)
                 compressing_to_zip(self.path, self.pdf_dir, chapter_no)
                 del chapter_no
@@ -261,40 +308,65 @@ class ImgToPdf:
                     list_pages.sort()
                     print(list_pages)
 
+                    # PDF Conversion using FPDF2 
+
+                    pdf = FPDF('P', 'pt')
+                    for image in list_pages:
+                        if platform == "linux" or platform == "linux2":
+                            img_path = f'{image_path}/{image}'
+                        else:
+                            img_path = f'{image_path}\\{image}'
+                        file = Image.open(img_path).convert('RGB')
+                        width, height = file.size
+                        pdf.add_page(format=(width, height))
+                        img_bytes = self.pil_image(img_path)
+                        pdf.image(img_bytes, 0, 0, width, height)
+                        img_bytes.close()
+
+                        del img_bytes
+                        del image
+                        gc.collect()
+
+                    pdf.output(pdf_output_path_and_name, "F")
+                    pdf.close()
+
+                    # PDF Conversion using PIL
+
                     # Opening Image class and making Image Objects and setting them in dictionary
-                    if platform == "linux" or platform == "linux2":
-                        img_obj_dict = {page_name: Image.open(f"{image_path}/{page_name}") for page_name in list_pages}
-                    else:
-                        img_obj_dict = {page_name: Image.open(f"{image_path}\\{page_name}") for page_name in list_pages}
+                    # if platform == "linux" or platform == "linux2":
+                    #     img_obj_dict = {page_name: Image.open(f"{image_path}/{page_name}") for page_name in list_pages}
+                    # else:
+                    #     img_obj_dict = {page_name: Image.open(f"{image_path}\\{page_name}") for page_name in list_pages}
 
-                    # Getting all the Image Objects and setting them in list
-                    img_obj_list = [objects for page_name, objects in img_obj_dict.items()]
-                    intro_imgae_obj = Image.open(f"{os.getcwd()}/MangaOperations/intro_img/Intro.png")
-                    img_obj_list.insert(0, intro_imgae_obj)
+                    # # Getting all the Image Objects and setting them in list
+                    # img_obj_list = [objects for page_name, objects in img_obj_dict.items()]
+                    # intro_imgae_obj = Image.open(f"{os.getcwd()}/MangaOperations/intro_img/Intro.png")
+                    # img_obj_list.insert(0, intro_imgae_obj)
 
-                    img_obj_list_2 = []
+                    # img_obj_list_2 = []
 
-                    # Convertinfg the pages to rgb to avoid errors
-                    for x in img_obj_list:
-                        x1 = x.convert('RGB')
-                        img_obj_list_2.append(x1)
+                    # # Convertinfg the pages to rgb to avoid errors
+                    # for x in img_obj_list:
+                    #     x1 = x.convert('RGB')
+                    #     img_obj_list_2.append(x1)
 
-                    # Main Logic of converting images to pdfs
-                    # first_key = list(Img_Obj_dict.values())[0]
-                    first_key = img_obj_list_2[0]
-                    print(f"Object: {first_key}")
-                    first_key.save(pdf_output_path_and_name, "PDF", resolution=100.0, save_all=True,
-                                   append_images=img_obj_list_2[1:])
-                    print(f"Conversion of {chapter_no} completed!")
+                    # # Main Logic of converting images to pdfs
+                    # # first_key = list(Img_Obj_dict.values())[0]
+                    # first_key = img_obj_list_2[0]
+                    # print(f"Object: {first_key}")
+                    # first_key.save(pdf_output_path_and_name, "PDF", resolution=100.0, save_all=True,
+                    #                append_images=img_obj_list_2[1:])
+
+                    print(f"Conversion of {chapter_no} completed!") 
                     print()
                     del chapter
                     del image_path
                     del pdf_output_path_and_name
                     del list_pages
-                    del img_obj_dict
-                    del img_obj_list
-                    del img_obj_list_2
-                    del first_key
+                    # del img_obj_dict
+                    # del img_obj_list
+                    # del img_obj_list_2
+                    # del first_key
                     gc.collect()
                 except Exception as e:
                     writing_exceptions(chapter_no, e, folder_name[i])

@@ -181,16 +181,6 @@ class anilistapi:
 
 
         self.manipulate_img(folder_name, mangatype, startyear, score, manganame_newline_ls)
-        
-        # im = Image.open(image_in_folder).convert('RGB')
-        # width, height = im.size
-        # count = 0
-        # for i in range(0, 500, 50):
-        #     x = i + 250
-        #     cropped = im.crop((0, i, width, x))
-        #     cropped.save(f"{folder_name}image_{count}.jpg")
-        #     count += 1
-        # print(f"Images Saved! at: {folder_name}")
 
 
     def manipulate_img(self, folder_name, mangatype, startyear, score, manganame_newline_ls):
@@ -265,7 +255,7 @@ class anilistapi:
         height = 0.17
         for line in manganame_newline_ls:
             ImageDraw.Draw(bannerimg).text((emptyimg.size[0] * 0.06, emptyimg.size[1] * height), text=line, font=title_font)
-            height += 0.06
+            height += 0.09
             print(line)
         
         

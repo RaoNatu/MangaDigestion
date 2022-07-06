@@ -146,7 +146,7 @@ class thumbnailapi:
         height = 0.17
         for line in manganame_newline_ls:
             ImageDraw.Draw(bannerimg).text((emptyimg.size[0] * 0.06, emptyimg.size[1] * height), text=line, font=title_font)
-            height += 0.06
+            height += 0.09
             print(line)
         
         
@@ -158,7 +158,6 @@ class thumbnailapi:
         emptyimg.paste(starimg, (int(emptyimg.size[0] * 0.06), int(emptyimg.size[1] * 0.79)), mask=starimg)
         emptyimg.paste(coverimg, (emptywidth - coverwidth, 0), mask=mask)
 
-        emptyimg.show()
         emptyimg.save(f"{folder_name}telecover.jpg")
         print("Image Saved!")
         

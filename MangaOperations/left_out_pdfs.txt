@@ -1,0 +1,5 @@
+readmanganato.com_Chapter 327: ImgToPdf.pil_image() takes 1 positional argument but 2 were given
+readmanganato.com_Chapter 327: ImgToPdf.pil_image() takes 1 positional argument but 2 were given
+readmanganato.com_Chapter 327: ImgToPdf.pil_image() takes 1 positional argument but 2 were given
+readmanganato.com_Chapter 327: ImgToPdf.pil_image() takes 1 positional argument but 2 were given
+readmanganato.com_Chapter 327: ImgToPdf.pil_image() takes 1 positional argument but 2 were given
