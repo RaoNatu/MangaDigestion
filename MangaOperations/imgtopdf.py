@@ -80,7 +80,7 @@ class ImgToPdf:
             membuf = BytesIO()
             suffix = path.split('.')[-1]
             suffix = "." + suffix
-            if suffix == '.jpg' or suffix == '.png':
+            if suffix == '.jpg' or suffix == '.png' or suffix == '.webp':
                 img.save(membuf, format='jpeg')
             else:
                 img.save(membuf)
@@ -155,16 +155,20 @@ class ImgToPdf:
                 print(f"Converting {chapter}")
                 print(f"Sorted list of {chapter}")
                 list_pages.sort()
+                list_pages.insert(0, 'Intro.png')
                 print(f"List Pages: {list_pages}")
 
                 # PDF Conversion using FPDF2 
 
                 pdf = FPDF('P', 'pt')
                 for image in list_pages:
-                    if platform == "linux" or platform == "linux2":
-                        img_path = f'{image_path}/{image}'
+                    if image == 'Intro.png':
+                            img_path = f'intro_img/Intro.png'
                     else:
-                        img_path = f'{image_path}\\{image}'
+                        if platform == "linux" or platform == "linux2":
+                            img_path = f'{image_path}/{image}'
+                        else:
+                            img_path = f'{image_path}\\{image}'
                     file = Image.open(img_path).convert('RGB')
                     width, height = file.size
                     pdf.add_page(format=(width, height))
@@ -306,16 +310,20 @@ class ImgToPdf:
                     print(f"Converting {chapter}")
                     print(f"Sorted list of {chapter}")
                     list_pages.sort()
-                    print(list_pages)
+                    list_pages.insert(0, 'Intro.png')
+                    print(f"List Pages: {list_pages}")
 
                     # PDF Conversion using FPDF2 
 
                     pdf = FPDF('P', 'pt')
                     for image in list_pages:
-                        if platform == "linux" or platform == "linux2":
-                            img_path = f'{image_path}/{image}'
+                        if image == 'Intro.png':
+                            img_path = f'intro_img/Intro.png'
                         else:
-                            img_path = f'{image_path}\\{image}'
+                            if platform == "linux" or platform == "linux2":
+                                img_path = f'{image_path}/{image}'
+                            else:
+                                img_path = f'{image_path}\\{image}'
                         file = Image.open(img_path).convert('RGB')
                         width, height = file.size
                         pdf.add_page(format=(width, height))

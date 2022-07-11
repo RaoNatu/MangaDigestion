@@ -1,0 +1,14 @@
+1. Upgrade packages:
+pkg upgrade
+
+2. Install Python:
+pkg install python
+
+3. Install Important Dependencies
+pip install virtualenv
+(venv) pip install natsort
+(venv) pip install wheel
+(venv) pip install libjpeg-turbo
+(venv) pip install libwebp
+(venv) pip install pillow
+(venv) pip install fpdf2

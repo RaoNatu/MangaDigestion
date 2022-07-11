@@ -81,6 +81,9 @@ class thumbnailapi:
         emptyheight = 720
         emptyimg = Image.new('RGB', (emptywidth, emptyheight))
 
+        tmp_bannerimg = Image.open(f'{folder_name}banner.jpg').convert('RGBA')
+        tmp_bannerwidth, tmp_bannerheight = tmp_bannerimg.size
+        
         bannerimg = Image.open(f'{folder_name}banner.jpg').convert('RGBA')
         bannerwidth, bannerheight = bannerimg.size
 
@@ -95,9 +98,17 @@ class thumbnailapi:
         sar_ver = ((50, 0),(coverwidth, 0),(coverwidth, coverheight),(0, coverheight))
         ImageDraw.Draw(mask).polygon(sar_ver, fill=255)
 
-
-        bannerimg = bannerimg.crop((760, 0, bannerwidth, bannerheight))
-        bannerimg = bannerimg.resize((emptywidth + 400, emptyheight))
+        while tmp_bannerheight < emptyheight:
+            tmp_bannerwidth = int(tmp_bannerwidth * 1.05)
+            tmp_bannerheight = int(tmp_bannerheight * 1.05)
+            tmp_bannerimg = tmp_bannerimg.resize((tmp_bannerwidth, tmp_bannerheight))
+        tmp_bannerimg = tmp_bannerimg.filter(ImageFilter.GaussianBlur(16))
+        tmp_bannerimg = ImageEnhance.Brightness(tmp_bannerimg).enhance(0.5)
+        
+        while bannerheight < emptyheight:
+            bannerwidth = int(bannerwidth * 1.05)
+            bannerheight = int(bannerheight * 1.05)
+            bannerimg = bannerimg.resize((bannerwidth, bannerheight))
         bannerimg = bannerimg.filter(ImageFilter.GaussianBlur(16))
         bannerimg = ImageEnhance.Brightness(bannerimg).enhance(0.5)
 
@@ -134,30 +145,48 @@ class thumbnailapi:
         year_font = ImageFont.truetype(font_path, yearfontsize)
 
         ratingfontsize = 35
-        # ratingfraction = 0.05
         rating_font = ImageFont.truetype(font_path, ratingfontsize)
-        # while rating_font.getsize(f"{score}/10")[0] < ratingfraction*emptyimg.size[0]:
-        # # iterate until the text size is just larger than the criteria
-        #     ratingfontsize += 1
-        #     rating_font = ImageFont.truetype(font_path, ratingfontsize)
 
-        ImageDraw.Draw(bannerimg).text((emptyimg.size[0] * 0.06, emptyimg.size[1] * 0.13), text=f"{startyear} - {mangatype}", font=year_font)
-        
+        print(bannerimg.size[0])
+        print(bannerimg.size[1])
+
+        flag = True
+        while flag == True:
+            offset = int(input("Enter banner offset: "))
+            height = 0.17
+            for line in manganame_newline_ls:
+                ImageDraw.Draw(tmp_bannerimg).text((emptyimg.size[0] * 0.06 + abs(offset), emptyimg.size[1] * height), text=line, font=title_font)
+                height += 0.09
+            ImageDraw.Draw(tmp_bannerimg).text(((emptyimg.size[0] * 0.06) + abs(offset), emptyimg.size[1] * 0.13), text=f"{startyear} - {mangatype}", font=year_font)
+            ImageDraw.Draw(tmp_bannerimg).text((emptyimg.size[0] * 0.1 + abs(offset), emptyimg.size[1] * 0.8), text=f"{score}/10", font=rating_font)
+            ImageDraw.Draw(tmp_bannerimg).text((emptyimg.size[0] * 0.06 + abs(offset), emptyimg.size[1] * 0.9), text="@MangaDigestion", font=year_font)
+            emptyimg.paste(tmp_bannerimg, (offset, 0))
+            emptyimg.paste(starimg, (int(emptyimg.size[0] * 0.06), int(emptyimg.size[1] * 0.79)), mask=starimg)
+            emptyimg.paste(coverimg, (emptywidth - coverwidth, 0), mask=mask)
+
+            # emptyimg.show()
+            emptyimg.save(f"{folder_name}tmp.jpg")
+
+            choice = input("Check your image, Do you want to offset it more? [y/N]")
+
+            if choice.lower() == "y":
+                continue
+            else:
+                real_offset = offset
+                flag = False
+
         height = 0.17
         for line in manganame_newline_ls:
-            ImageDraw.Draw(bannerimg).text((emptyimg.size[0] * 0.06, emptyimg.size[1] * height), text=line, font=title_font)
+            ImageDraw.Draw(bannerimg).text((emptyimg.size[0] * 0.06 + abs(real_offset), emptyimg.size[1] * height), text=line, font=title_font)
             height += 0.09
-            print(line)
-        
-        
-        ImageDraw.Draw(bannerimg).text((emptyimg.size[0] * 0.1, emptyimg.size[1] * 0.8), text=f"{score}/10", font=rating_font)
-        ImageDraw.Draw(bannerimg).text((emptyimg.size[0] * 0.06, emptyimg.size[1] * 0.9), text="@MangaDigestion", font=year_font)
-        
-
-        emptyimg.paste(bannerimg, (0, 0))
+        ImageDraw.Draw(bannerimg).text(((emptyimg.size[0] * 0.06) + abs(real_offset), emptyimg.size[1] * 0.13), text=f"{startyear} - {mangatype}", font=year_font)
+        ImageDraw.Draw(bannerimg).text((emptyimg.size[0] * 0.1 + abs(real_offset), emptyimg.size[1] * 0.8), text=f"{score}/10", font=rating_font)
+        ImageDraw.Draw(bannerimg).text((emptyimg.size[0] * 0.06 + abs(real_offset), emptyimg.size[1] * 0.9), text="@MangaDigestion", font=year_font)
+        emptyimg.paste(bannerimg, (real_offset, 0))
         emptyimg.paste(starimg, (int(emptyimg.size[0] * 0.06), int(emptyimg.size[1] * 0.79)), mask=starimg)
         emptyimg.paste(coverimg, (emptywidth - coverwidth, 0), mask=mask)
 
+        # emptyimg.show()
         emptyimg.save(f"{folder_name}telecover.jpg")
-        print("Image Saved!")
+        print("Real Image Saved!")
         
