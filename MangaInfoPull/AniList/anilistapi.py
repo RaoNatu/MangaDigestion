@@ -199,6 +199,18 @@ class anilistapi:
 
         coverimg = Image.open(f'{folder_name}cover.jpg').convert('RGBA')
         coverwidth, coverheight = coverimg.size
+
+        # For Bigger image size
+        # if coverheight > emptyheight:
+        #     while coverheight > emptyheight:
+        #         coverwidth = int(coverwidth * 0.5)
+        #         coverheight = int(coverheight * 0.5)
+        # if coverheight < emptyheight:
+        #     while coverheight < emptyheight:
+        #         coverwidth = int(coverwidth * 1.1)
+        #         coverheight = int(coverheight * 1.1)
+        # coverimg = coverimg.resize((coverwidth, coverheight))
+
         while coverheight < emptyheight:
             coverwidth = int(coverwidth * 1.1)
             coverheight = int(coverheight * 1.1)
@@ -221,7 +233,6 @@ class anilistapi:
             bannerimg = bannerimg.resize((bannerwidth, bannerheight))
         bannerimg = bannerimg.filter(ImageFilter.GaussianBlur(16))
         bannerimg = ImageEnhance.Brightness(bannerimg).enhance(0.5)
-
 
         starimg = Image.open(f'{os.getcwd()}/Assets/Image/star.png')
         starfraction = 0.03

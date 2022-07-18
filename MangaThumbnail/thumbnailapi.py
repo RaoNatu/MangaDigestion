@@ -89,9 +89,14 @@ class thumbnailapi:
 
         coverimg = Image.open(f'{folder_name}cover.jpg').convert('RGBA')
         coverwidth, coverheight = coverimg.size
-        while coverheight < emptyheight:
-            coverwidth = int(coverwidth * 1.1)
-            coverheight = int(coverheight * 1.1)
+        if coverheight > emptyheight:
+            while coverheight > emptyheight:
+                coverwidth = int(coverwidth * 0.5)
+                coverheight = int(coverheight * 0.5)
+        if coverheight < emptyheight:
+            while coverheight < emptyheight:
+                coverwidth = int(coverwidth * 1.1)
+                coverheight = int(coverheight * 1.1)
         coverimg = coverimg.resize((coverwidth, coverheight))
 
         mask = Image.new("L", (coverwidth, coverheight), 0)
