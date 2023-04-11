@@ -32,6 +32,19 @@ Manga Operations contains the information that are used to:
 
 This is basically a automatic Photoshop, this will fetch or take image file from a user and corresponding information and provide a combination of those. 
 
+## Usage
+
+### 1. Installing requirements:
+
+```
+pip install -r requirements.txt
+```
+
+### 2. Starting
+
+```
+python3 main.py
+```
 
 ## Termux-Setup
 
